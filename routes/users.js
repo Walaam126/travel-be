@@ -26,5 +26,5 @@ router.post(
 
 router.post("/signup", controller.signup);
 
-router.put("/:userId", controller.editUserProfile);
+router.put("/:userId", controller.updateUser);
 module.exports = router;

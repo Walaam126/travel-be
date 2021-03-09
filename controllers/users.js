@@ -4,7 +4,6 @@ const { JWT_SECRET, JWT_EXPIRATION_MS } = require("../config/keys");
 const { User } = require("../db/models");
 
 exports.fetchUser = async (userId, next) => {
-  console.log(userId);
   try {
     const foundUser = await User.findByPk(userId);
     return foundUser;
@@ -19,6 +18,7 @@ exports.signin = async (req, res, next) => {
     id: user.id,
     username: user.username,
     email: user.email,
+    isAirline: user.isAirline,
     exp: Date.now() + JWT_EXPIRATION_MS,
   };
   const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
@@ -36,6 +36,7 @@ exports.signup = async (req, res, next) => {
       id: newUser.id,
       username: newUser.username,
       email: newUser.email,
+      isAirline: user.isAirline,
       exp: Date.now() + JWT_EXPIRATION_MS,
     };
     const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
@@ -45,10 +46,18 @@ exports.signup = async (req, res, next) => {
   }
 };
 
-exports.editUserProfile = async (req, res, next) => {
+exports.updateUser = async (req, res, next) => {
   try {
-    await req.user.update(req.body);
-    res.status(201).json(req.User);
+    const updatedUser = await req.user.update(req.body);
+    const payload = {
+      id: updatedUser.id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      isAirline: updatedUser.isAirline,
+      exp: req.body.exp,
+    };
+    const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
+    res.json({ token });
   } catch (error) {
     next(error);
   }
