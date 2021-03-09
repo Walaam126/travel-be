@@ -24,8 +24,8 @@ app.use((req, res, next) => next({ status: 404, message: "Path not found" }));
 
 app.use((err, req, res, next) =>
   res
-    .status(err.status ?? 500)
-    .json({ message: err.message ?? "Internal Server Error!" })
+    .status(err.status || 500)
+    .json({ message: err.message || "Internal Server Error!" })
 );
 
 db.sequelize.sync({ alter: true });
