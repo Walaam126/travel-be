@@ -1,7 +1,7 @@
 const { Airline, Flight } = require("../db/models");
-
 const moment = require("moment");
 
+//----------FETCH AN AIRLINE----------//
 exports.fetchAirline = async (airlineId, next) => {
   try {
     return await Airline.findByPk(airlineId);
@@ -10,6 +10,7 @@ exports.fetchAirline = async (airlineId, next) => {
   }
 };
 
+//----------FETCH ALL AIRLINES----------//
 exports.listAirlines = async (req, res, next) => {
   try {
     const airlines = await Airline.findAll({
@@ -26,6 +27,7 @@ exports.listAirlines = async (req, res, next) => {
   }
 };
 
+//----------FETCH AIRLINE FLIGHTS----------//
 exports.airlineFlights = async (req, res, next) => {
   try {
     const flights = await Flight.findAll({
@@ -38,22 +40,20 @@ exports.airlineFlights = async (req, res, next) => {
   }
 };
 
+//----------CREATE AIRLINE----------//
 exports.createAirline = async (req, res, next) => {
   try {
     const foundAirline = await Airline.findOne({
       where: { userId: req.user.id },
     });
-
     if (foundAirline) {
       const err = new Error("You are already an Airline account");
       err.status = 400;
       next(err);
     }
-
     if (req.file) {
       req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
     }
-
     req.body.userId = req.user.id;
     const newAirline = await Airline.create(req.body);
     res.status(201).json(newAirline);
@@ -62,16 +62,15 @@ exports.createAirline = async (req, res, next) => {
   }
 };
 
+//----------CREATE FLIGHT----------//
 exports.createFlight = async (req, res, next) => {
   try {
     const foundAirline = await Airline.findByPk(req.airline.id);
-
     if (!foundAirline) {
       const err = new Error("Create an Airline first!");
       err.status = 401;
       next(err);
     }
-
     if (foundAirline.userId !== req.user.id) {
       const err = new Error("You are not the owner, you can't add flights.");
       err.status = 401;
@@ -79,29 +78,24 @@ exports.createFlight = async (req, res, next) => {
     }
 
     req.body.airlineId = req.airline.id;
-    const newFlight = await Flight.create(req.body);
+    const newFlight = req.body;
 
-    const duration = moment(newFlight.arrTime, "HH:mm").diff(
-      moment(newFlight.depTime, "HH:mm"),
-      "minutes"
-    );
+    const newdepTime = moment(newFlight.depTime, "HH:mm");
+    const newarrTime = moment(newFlight.arrTime, "HH:mm");
 
-    const backFlight = {
-      depTime: moment(newFlight.arrTime, "HH:mm")
-        .add(30, "minutes")
-        .format("HH:mm"),
-      arrTime: moment(newFlight.arrTime, "HH:mm")
-        .add(duration + 30, "minutes")
-        .format("HH:mm"),
+    const duration = newarrTime.diff(newdepTime, "minutes");
+
+    let backFlight = Object.assign({}, req.body);
+    backFlight = {
+      ...backFlight,
+      depTime: newarrTime.add(30, "minutes").format("HH:mm"),
+      arrTime: newarrTime.add(duration + 30, "minutes").format("HH:mm"),
       depAirport: newFlight.arrAirport,
       arrAirport: newFlight.depAirport,
-      price: newFlight.price,
-      economy: newFlight.economy,
-      business: newFlight.business,
-      airlineId: req.airline.id,
     };
 
-    if (moment(newFlight.arrTime, "HH:mm") >= moment("23:30", "HH:mm")) {
+    //---Assign Arrival Flight Dates---//
+    if (newarrTime >= moment("23:30", "HH:mm")) {
       backFlight.depDate = moment(newFlight.arrDate)
         .add(1, "days")
         .format("YYYY-MM-DD");
@@ -118,8 +112,8 @@ exports.createFlight = async (req, res, next) => {
       backFlight.arrDate = backFlight.depDate;
     }
 
-    const otherFlight = await Flight.create(backFlight);
-    res.status(201).json([newFlight, backFlight]);
+    const flights = await Flight.bulkCreate([req.body, backFlight]);
+    res.status(201).json(flights);
   } catch (error) {
     next(error);
   }
