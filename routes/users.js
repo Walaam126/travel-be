@@ -4,6 +4,20 @@ const passport = require("passport");
 
 const router = express.Router();
 
+router.param("userId", async (req, res, next, userId) => {
+  console.log(userId);
+  const foundUser = await controller.fetchUser(userId, next);
+  if (foundUser) {
+    req.user = foundUser;
+    next();
+  } else {
+    next({
+      status: 404,
+      message: "user Not Found",
+    });
+  }
+});
+
 router.post(
   "/signin",
   passport.authenticate("local", { session: false }),
@@ -12,4 +26,5 @@ router.post(
 
 router.post("/signup", controller.signup);
 
+router.put("/:userId", controller.editUserProfile);
 module.exports = router;

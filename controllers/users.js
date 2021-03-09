@@ -3,6 +3,16 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET, JWT_EXPIRATION_MS } = require("../config/keys");
 const { User } = require("../db/models");
 
+exports.fetchUser = async (userId, next) => {
+  console.log(userId);
+  try {
+    const foundUser = await User.findByPk(userId);
+    return foundUser;
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.signin = async (req, res, next) => {
   const { user } = req;
   const payload = {
@@ -30,6 +40,15 @@ exports.signup = async (req, res, next) => {
     };
     const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
     res.json({ token });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.editUserProfile = async (req, res, next) => {
+  try {
+    await req.user.update(req.body);
+    res.status(201).json(req.User);
   } catch (error) {
     next(error);
   }
