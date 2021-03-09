@@ -5,7 +5,6 @@ const passport = require("passport");
 const router = express.Router();
 
 router.param("userId", async (req, res, next, userId) => {
-  console.log(userId);
   const foundUser = await controller.fetchUser(userId, next);
   if (foundUser) {
     req.user = foundUser;
