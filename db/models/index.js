@@ -43,4 +43,30 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+db.User.hasOne(db.Airline, { as: "airline", foreignKey: "userId" });
+db.Airline.belongsTo(db.User, { as: "user" });
+
+db.Airline.hasMany(db.Flight, { foreignKey: "airlineId", as: "flights" });
+db.Flight.belongsTo(db.Airline, { foreignKey: "airlineId", as: "airline" });
+
+db.User.hasMany(db.Booking, { foreignKey: "userId", as: "bookings" });
+db.Booking.belongsTo(db.User, { foreignKey: "userId", as: "airline" });
+
+db.Booking.hasMany(db.Passenger, { foreignKey: "bookingId", as: "passengers" });
+db.Passenger.belongsTo(db.Booking, { foreignKey: "bookingId", as: "booking" });
+
+db.Booking.belongsToMany(db.Flight, {
+  through: "BookFlight",
+  foreignKey: "bookingId",
+});
+
+db.Flight.belongsToMany(db.Booking, {
+  through: "BookFlight",
+  foreignKey: "flightId",
+});
+
+db.Location.hasMany(db.Flight, { foreignKey: "depAirport", as: "flights" });
+db.Flight.belongsTo(db.Location, { foreignKey: "depAirport", as: "departure" });
+db.Flight.belongsTo(db.Location, { foreignKey: "arrAirport", as: "arrival" });
+
 module.exports = db;

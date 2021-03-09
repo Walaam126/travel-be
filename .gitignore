@@ -1,5 +1,8 @@
+#media
+media
+
 #config
-config.json
+db/config.json
 
 # Logs
 logs

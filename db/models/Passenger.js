@@ -1,5 +1,6 @@
 module.exports = (sequelize, DataTypes) =>
   sequelize.define("Passenger", {
-    name: { type: DataTypes.STRING },
-    cpr: { type: DataTypes.STRING },
+    firstName: { type: DataTypes.STRING, allowNull: false },
+    lastName: { type: DataTypes.STRING, allowNull: false },
+    ageGroup: { type: DataTypes.STRING, allowNull: false },
   });
