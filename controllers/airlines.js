@@ -31,10 +31,6 @@ exports.airlineFlights = async (req, res, next) => {
     const flights = await Flight.findAll({
       where: { airlineId: req.airline.id },
       attributes: { exclude: ["airlineId", "createdAt", "updatedAt"] },
-      include: {
-        model: Flight,
-        as: "flights",
-      },
     });
     res.json(flights);
   } catch (error) {
