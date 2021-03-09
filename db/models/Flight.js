@@ -1,9 +1,10 @@
 module.exports = (sequelize, DataTypes) =>
   sequelize.define("Flight", {
-    departureDate: { type: DataTypes.DATEONLY },
-    departureTime: { type: DataTypes.STRING },
-    arrivalDate: { type: DataTypes.DATEONLY },
-    arrivalTime: { type: DataTypes.STRING },
-    economySeats: { type: DataTypes.INTEGER },
-    businessSeats: { type: DataTypes.INTEGER },
+    depDate: { type: DataTypes.DATEONLY, allowNull: false },
+    depTime: { type: DataTypes.STRING, allowNull: false },
+    arrDate: { type: DataTypes.DATEONLY, allowNull: false },
+    arrTime: { type: DataTypes.STRING, allowNull: false },
+    price: { type: DataTypes.INTEGER, allowNull: false },
+    economy: { type: DataTypes.INTEGER, allowNull: false },
+    business: { type: DataTypes.INTEGER, allowNull: false },
   });
