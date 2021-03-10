@@ -65,13 +65,7 @@ exports.createAirline = async (req, res, next) => {
 //----------CREATE FLIGHT----------//
 exports.createFlight = async (req, res, next) => {
   try {
-    const foundAirline = await Airline.findByPk(req.airline.id);
-    if (!foundAirline) {
-      const err = new Error("Create an Airline first!");
-      err.status = 401;
-      next(err);
-    }
-    if (foundAirline.userId !== req.user.id) {
+    if (req.airline.userId !== req.user.id) {
       const err = new Error("You are not the owner, you can't add flights.");
       err.status = 401;
       next(err);
@@ -101,7 +95,7 @@ exports.createFlight = async (req, res, next) => {
         .format("YYYY-MM-DD");
       backFlight.arrDate = backFlight.depDate;
     } else if (
-      moment(backFlight.arrTime, "HH:mm") >= moment("00:00", "HH:mm")
+      moment(backFlight.arrTime, "HH:mm") >= moment("23:59", "HH:mm")
     ) {
       backFlight.depDate = newFlight.arrDate;
       backFlight.arrDate = moment(backFlight.depDate)
