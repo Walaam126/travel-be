@@ -11,7 +11,7 @@ exports.fetchAirline = async (airlineId, next) => {
 };
 
 //----------FETCH ALL AIRLINES----------//
-exports.listAirlines = async (req, res, next) => {
+exports.fetchAirlines = async (req, res, next) => {
   try {
     const airlines = await Airline.findAll({
       attributes: { exclude: ["userId", "createdAt", "updatedAt"] },
@@ -65,54 +65,37 @@ exports.createAirline = async (req, res, next) => {
 //----------CREATE FLIGHT----------//
 exports.createFlight = async (req, res, next) => {
   try {
-    const foundAirline = await Airline.findByPk(req.airline.id);
-    if (!foundAirline) {
-      const err = new Error("Create an Airline first!");
-      err.status = 401;
-      next(err);
-    }
-    if (foundAirline.userId !== req.user.id) {
-      const err = new Error("You are not the owner, you can't add flights.");
+    if (req.airline.userId !== req.user.id) {
+      const err = new Error("You are not the owner, you can't add flights");
       err.status = 401;
       next(err);
     }
 
     req.body.airlineId = req.airline.id;
-    const newFlight = req.body;
 
-    const newdepTime = moment(newFlight.depTime, "HH:mm");
-    const newarrTime = moment(newFlight.arrTime, "HH:mm");
+    const flightDep = moment(
+      `${req.body.depDate} ${req.body.depTime}`,
+      "YYYY-MM-DD H:mm"
+    );
 
-    const duration = newarrTime.diff(newdepTime, "minutes");
+    const flightArr = moment(
+      `${req.body.arrDate} ${req.body.arrTime}`,
+      "YYYY-MM-DD H:mm"
+    );
 
-    let backFlight = Object.assign({}, req.body);
-    backFlight = {
-      ...backFlight,
-      depTime: newarrTime.add(30, "minutes").format("HH:mm"),
-      arrTime: newarrTime.add(duration + 30, "minutes").format("HH:mm"),
-      depAirport: newFlight.arrAirport,
-      arrAirport: newFlight.depAirport,
+    const duration = Math.abs(flightArr.diff(flightDep, "minutes"));
+
+    const flight = {
+      ...req.body,
+      depTime: flightArr.add(30, "minutes").format("H:mm"),
+      depDate: flightArr.format("YYYY-MM-DD"),
+      arrTime: flightArr.add(duration, "minutes").format("H:mm"),
+      arrDate: flightArr.format("YYYY-MM-DD"),
+      depAirport: req.body.arrAirport,
+      arrAirport: req.body.depAirport,
     };
 
-    //---Assign Arrival Flight Dates---//
-    if (newarrTime >= moment("23:30", "HH:mm")) {
-      backFlight.depDate = moment(newFlight.arrDate)
-        .add(1, "days")
-        .format("YYYY-MM-DD");
-      backFlight.arrDate = backFlight.depDate;
-    } else if (
-      moment(backFlight.arrTime, "HH:mm") >= moment("00:00", "HH:mm")
-    ) {
-      backFlight.depDate = newFlight.arrDate;
-      backFlight.arrDate = moment(backFlight.depDate)
-        .add(1, "days")
-        .format("YYYY-MM-DD");
-    } else {
-      backFlight.depDate = newFlight.arrDate;
-      backFlight.arrDate = backFlight.depDate;
-    }
-
-    const flights = await Flight.bulkCreate([req.body, backFlight]);
+    const flights = await Flight.bulkCreate([req.body, flight]);
     res.status(201).json(flights);
   } catch (error) {
     next(error);
