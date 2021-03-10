@@ -1,8 +1,8 @@
 #media
 media
 
-#config
-db/config*
+# #config
+# db/config*
 
 # Logs
 logs
