@@ -2,7 +2,7 @@
 media
 
 #config
-db/config*
+db/config/config.json
 
 # Logs
 logs
