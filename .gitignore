@@ -1,9 +1,6 @@
 #media
 media
 
-# #config
-# db/config*
-
 # Logs
 logs
 *.log
