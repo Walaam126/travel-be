@@ -17,6 +17,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
 app.use(passport.initialize());
 passport.use(localStrategy);
 passport.use(jwtStrategy);
