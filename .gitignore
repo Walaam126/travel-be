@@ -2,7 +2,7 @@
 media
 
 #config
-db/config
+db/config*
 
 # Logs
 logs
