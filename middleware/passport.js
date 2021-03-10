@@ -30,6 +30,7 @@ exports.localStrategy = new LocalStrategy(async (username, password, done) => {
     let pwdMatch = user ? await bcrypt.compare(password, user.password) : false;
     if (pwdMatch) return done(null, user);
     else return done(null, false);
+    // REVIEW: this can be cleaned up by directly returning done(null, user);
   } catch (error) {
     return done(error);
   }

@@ -18,6 +18,7 @@ router.param("airlineId", async (req, res, next, airlineId) => {
   }
 });
 
+// REVIEW: Why do you need the list of all airlines?
 router.get("/", controller.listAirlines);
 
 router.get(

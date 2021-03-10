@@ -9,3 +9,5 @@ module.exports = (sequelize, DataTypes) =>
     },
     isAirline: { type: DataTypes.BOOLEAN, defaultValue: false },
   });
+
+// REVIEW: shouldn't the account have a firstname & lastname if it's a normal user?

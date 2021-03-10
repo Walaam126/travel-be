@@ -77,6 +77,8 @@ exports.createFlight = async (req, res, next) => {
       next(err);
     }
 
+    // REVIEW: `next` does not end the response, this will still create the flight. Add a return before next
+
     req.body.airlineId = req.airline.id;
     const newFlight = req.body;
 

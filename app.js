@@ -2,12 +2,12 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 
-// Data-base
-const db = require("./db/models");
-
 // Authentication
 const passport = require("passport");
 const { localStrategy, jwtStrategy } = require("./middleware/passport");
+
+// Data-base
+const db = require("./db/models");
 
 // Routes
 const userRoutes = require("./routes/users");
@@ -15,15 +15,17 @@ const airlineRoutes = require("./routes/airlines");
 
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
+// Passport Middleware
 app.use(passport.initialize());
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 
+// Routes
 app.use("/media", express.static(path.join(__dirname, "media")));
-
 app.use(userRoutes);
 app.use("/airlines", airlineRoutes);
 

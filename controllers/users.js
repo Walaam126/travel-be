@@ -60,6 +60,7 @@ exports.updateUser = async (req, res, next) => {
       isAirline: updatedUser.isAirline,
       exp: req.body.exp,
     };
+    // REVIEW: why are you sending the exp back?
     const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
     res.json({ token });
   } catch (error) {
