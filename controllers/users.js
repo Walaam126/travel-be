@@ -36,7 +36,7 @@ exports.signup = async (req, res, next) => {
       id: newUser.id,
       username: newUser.username,
       email: newUser.email,
-      isAirline: user.isAirline,
+      isAirline: newUser.isAirline,
       exp: Date.now() + JWT_EXPIRATION_MS,
     };
     const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
