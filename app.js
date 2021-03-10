@@ -12,6 +12,7 @@ const { localStrategy, jwtStrategy } = require("./middleware/passport");
 // Routes
 const userRoutes = require("./routes/users");
 const airlineRoutes = require("./routes/airlines");
+const flightRoutes = require("./routes/flights");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/media", express.static(path.join(__dirname, "media")));
 
 app.use(userRoutes);
 app.use("/airlines", airlineRoutes);
+app.use("/flights", flightRoutes);
 
 app.use((req, res, next) => next({ status: 404, message: "Path not found" }));
 
