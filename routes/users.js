@@ -12,7 +12,7 @@ router.param("userId", async (req, res, next, userId) => {
   } else {
     next({
       status: 404,
-      message: "user Not Found",
+      message: "User not found",
     });
   }
 });
@@ -26,4 +26,5 @@ router.post(
 router.post("/signup", controller.signup);
 
 router.put("/:userId", controller.updateUser);
+
 module.exports = router;

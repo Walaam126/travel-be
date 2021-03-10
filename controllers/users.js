@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET, JWT_EXPIRATION_MS } = require("../config/keys");
 const { User } = require("../db/models");
 
+//----------FETCH A USER----------//
 exports.fetchUser = async (userId, next) => {
   try {
     const foundUser = await User.findByPk(userId);
@@ -12,6 +13,7 @@ exports.fetchUser = async (userId, next) => {
   }
 };
 
+//----------USER SIGN IN----------//
 exports.signin = async (req, res, next) => {
   const { user } = req;
   const payload = {
@@ -25,6 +27,7 @@ exports.signin = async (req, res, next) => {
   res.json({ token });
 };
 
+//----------USER SIGN UP----------//
 exports.signup = async (req, res, next) => {
   const { password } = req.body;
   const saltRounds = 10;
@@ -46,6 +49,7 @@ exports.signup = async (req, res, next) => {
   }
 };
 
+//----------USER PROFILE UPDATE----------//
 exports.updateUser = async (req, res, next) => {
   try {
     const updatedUser = await req.user.update(req.body);
