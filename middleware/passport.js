@@ -29,7 +29,7 @@ exports.localStrategy = new LocalStrategy(async (username, password, done) => {
     const user = await User.findOne({ where: { username } });
     let pwdMatch = user ? await bcrypt.compare(password, user.password) : false;
     if (pwdMatch) return done(null, user);
-    else return done(null, false);
+    return done(null, false);
   } catch (error) {
     return done(error);
   }

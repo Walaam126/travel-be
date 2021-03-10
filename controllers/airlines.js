@@ -68,7 +68,7 @@ exports.createFlight = async (req, res, next) => {
     if (req.airline.userId !== req.user.id) {
       const err = new Error("You are not the owner, you can't add flights");
       err.status = 401;
-      next(err);
+      return next(err);
     }
 
     req.body.airlineId = req.airline.id;

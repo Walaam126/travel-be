@@ -52,16 +52,21 @@ exports.signup = async (req, res, next) => {
 //----------USER PROFILE UPDATE----------//
 exports.updateUser = async (req, res, next) => {
   try {
+    if (req.user.id !== req.body.id) {
+      const err = new Error("You can't update another user info!");
+      err.status = 401;
+      return next(err);
+    }
+
     const updatedUser = await req.user.update(req.body);
     const payload = {
       id: updatedUser.id,
       username: updatedUser.username,
       email: updatedUser.email,
       isAirline: updatedUser.isAirline,
-      exp: req.body.exp,
     };
-    const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
-    res.json({ token });
+
+    res.json(payload);
   } catch (error) {
     next(error);
   }

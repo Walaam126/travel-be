@@ -9,3 +9,4 @@ module.exports = (sequelize, DataTypes) =>
     },
     isAirline: { type: DataTypes.BOOLEAN, defaultValue: false },
   });
+// What About First & Last Names?
