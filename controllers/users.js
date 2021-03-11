@@ -21,6 +21,7 @@ exports.signin = async (req, res, next) => {
     username: user.username,
     email: user.email,
     isAirline: user.isAirline,
+    airlineId: user.airlineId,
     exp: Date.now() + JWT_EXPIRATION_MS,
   };
   const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
@@ -40,6 +41,7 @@ exports.signup = async (req, res, next) => {
       username: newUser.username,
       email: newUser.email,
       isAirline: newUser.isAirline,
+      airlineId: newUser.airlineId,
       exp: Date.now() + JWT_EXPIRATION_MS,
     };
     const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
@@ -49,7 +51,6 @@ exports.signup = async (req, res, next) => {
   }
 };
 
-//----------USER PROFILE UPDATE----------//
 exports.updateUser = async (req, res, next) => {
   try {
     if (req.user.id !== req.body.id) {
@@ -64,9 +65,12 @@ exports.updateUser = async (req, res, next) => {
       username: updatedUser.username,
       email: updatedUser.email,
       isAirline: updatedUser.isAirline,
+      airlineId: updatedUser.airlineId,
+      exp: req.body.exp,
     };
 
-    res.json(payload);
+    const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
+    res.json({ token });
   } catch (error) {
     next(error);
   }

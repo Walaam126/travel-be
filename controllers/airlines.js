@@ -27,13 +27,31 @@ exports.fetchAirlines = async (req, res, next) => {
   }
 };
 
+//----------FETCH AIRLINE DETAILS----------//
+exports.fetchAirlineDetails = async (req, res, next) => {
+  if (req.user.id !== req.airline.userId) {
+    const err = new Error("You are not the owner of this Airline!");
+    err.status = 401;
+    return next(err);
+  }
+
+  res.json(req.airline);
+};
+
 //----------FETCH AIRLINE FLIGHTS----------//
 exports.airlineFlights = async (req, res, next) => {
   try {
+    if (req.user.id !== req.airline.userId) {
+      const err = new Error("You are not the owner of this Airline!");
+      err.status = 401;
+      return next(err);
+    }
+
     const flights = await Flight.findAll({
       where: { airlineId: req.airline.id },
       attributes: { exclude: ["airlineId", "createdAt", "updatedAt"] },
     });
+
     res.json(flights);
   } catch (error) {
     next(error);
@@ -46,14 +64,17 @@ exports.createAirline = async (req, res, next) => {
     const foundAirline = await Airline.findOne({
       where: { userId: req.user.id },
     });
+
     if (foundAirline) {
       const err = new Error("You are already an Airline account");
       err.status = 400;
       next(err);
     }
+
     if (req.file) {
       req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
     }
+
     req.body.userId = req.user.id;
     const newAirline = await Airline.create(req.body);
     res.status(201).json(newAirline);
