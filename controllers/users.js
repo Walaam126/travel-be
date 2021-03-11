@@ -49,7 +49,6 @@ exports.signup = async (req, res, next) => {
   }
 };
 
-//----------USER PROFILE UPDATE----------//
 exports.updateUser = async (req, res, next) => {
   try {
     if (req.user.id !== req.body.id) {
@@ -64,9 +63,11 @@ exports.updateUser = async (req, res, next) => {
       username: updatedUser.username,
       email: updatedUser.email,
       isAirline: updatedUser.isAirline,
+      exp: req.body.exp,
     };
 
-    res.json(payload);
+    const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
+    res.json({ token });
   } catch (error) {
     next(error);
   }
