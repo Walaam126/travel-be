@@ -64,3 +64,29 @@ exports.updateFlight = async (req, res, next) => {
     next(error);
   }
 };
+
+//--------Search a Flight------------//
+exports.searchFlight = async (req, res, next) => {
+  try {
+    const filteredResults = await req.findAll({
+      attribute: {
+        exclude: ["createdAt", "updatedAt"],
+        where: req.params,
+        order: ["createdAt", "DESC"],
+        limit: 10,
+      },
+    });
+
+    res.status(200);
+    res.json({
+      message: "flights query records retrieved.",
+      data: filteredResults,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "There is an error retrieving flights query records!",
+      error,
+    });
+  }
+};
