@@ -8,5 +8,6 @@ module.exports = (sequelize, DataTypes) =>
       validate: { isEmail: true },
     },
     isAirline: { type: DataTypes.BOOLEAN, defaultValue: false },
+    airlineId: { type: DataTypes.INTEGER, defaultValue: 0 },
   });
 // What About First & Last Names?

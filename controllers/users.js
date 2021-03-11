@@ -21,6 +21,7 @@ exports.signin = async (req, res, next) => {
     username: user.username,
     email: user.email,
     isAirline: user.isAirline,
+    airlineId: updatedUser.airlineId,
     exp: Date.now() + JWT_EXPIRATION_MS,
   };
   const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
@@ -40,6 +41,7 @@ exports.signup = async (req, res, next) => {
       username: newUser.username,
       email: newUser.email,
       isAirline: newUser.isAirline,
+      airlineId: updatedUser.airlineId,
       exp: Date.now() + JWT_EXPIRATION_MS,
     };
     const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
@@ -63,6 +65,7 @@ exports.updateUser = async (req, res, next) => {
       username: updatedUser.username,
       email: updatedUser.email,
       isAirline: updatedUser.isAirline,
+      airlineId: updatedUser.airlineId,
       exp: req.body.exp,
     };
 
