@@ -41,6 +41,12 @@ exports.fetchAirlineDetails = async (req, res, next) => {
 //----------FETCH AIRLINE FLIGHTS----------//
 exports.airlineFlights = async (req, res, next) => {
   try {
+    if (req.user.id !== req.airline.userId) {
+      const err = new Error("You are not the owner of this Airline!");
+      err.status = 401;
+      return next(err);
+    }
+
     const flights = await Flight.findAll({
       where: { airlineId: req.airline.id },
       attributes: { exclude: ["airlineId", "createdAt", "updatedAt"] },
