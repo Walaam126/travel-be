@@ -14,7 +14,7 @@ exports.fetchAirline = async (airlineId, next) => {
 exports.fetchAirlines = async (req, res, next) => {
   try {
     const airlines = await Airline.findAll({
-      attributes: { exclude: ["userId", "createdAt", "updatedAt"] },
+      attributes: { exclude: ["createdAt", "updatedAt"] },
       include: {
         model: Flight,
         as: "flights",
