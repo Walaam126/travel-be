@@ -21,6 +21,12 @@ router.param("airlineId", async (req, res, next, airlineId) => {
 router.get("/", controller.fetchAirlines);
 
 router.get(
+  "/:airlineId",
+  passport.authenticate("jwt", { session: false }),
+  controller.fetchAirlineDetails
+);
+
+router.get(
   "/:airlineId/flights",
   passport.authenticate("jwt", { session: false }),
   controller.airlineFlights
