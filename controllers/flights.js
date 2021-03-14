@@ -1,3 +1,5 @@
+const { Op } = require("sequelize");
+const moment = require("moment");
 const { Airline, Flight, Location } = require("../db/models");
 
 //----------FETCH AN FLIGHT----------//
@@ -65,28 +67,30 @@ exports.updateFlight = async (req, res, next) => {
   }
 };
 
-//--------Search a Flight------------//
+//--------SEARCH FLIGHT------------//
 exports.searchFlight = async (req, res, next) => {
   try {
-    const filteredResults = await req.findAll({
-      attribute: {
-        exclude: ["createdAt", "updatedAt", "id"],
-        where: req.query,
+    const query = {
+      depAirport: req.body.depAirport,
+      arrAirport: req.body.arrAirport,
+      depDate: req.body.depDate,
+      [req.body.seat]: { [Op.gte]: req.body.passengers },
+    };
 
-        // order: ["createdAt", "DESC"],
-        limit: 10,
-      },
-    });
+    if (req.body.returnDate) {
+      query.depTime = { [Op.gte]: moment().add(2, "hours").format("H:mm") };
+    } else if (req.body.arrTime) {
+      query.depTime = {
+        [Op.gte]: moment(req.body.arrTime, "H:mm")
+          .add(2, "hours")
+          .format("H:mm"),
+      }; // flights are on the same day
+    }
+    console.log("🚀 ~ query", query);
 
-    res.status(200);
-    res.json({
-      message: "flights query records retrieved.",
-      data: filteredResults,
-    });
+    const flights = await Flight.findAll({ where: query });
+    res.json(flights);
   } catch (error) {
-    res.status(500).json({
-      message: "There is an error retrieving flights query records!",
-      error,
-    });
+    next(error);
   }
 };

@@ -19,7 +19,7 @@ router.param("flightId", async (req, res, next, flightId) => {
 
 router.get("/", controller.fetchFlights);
 
-router.get("/:pricec&:id", controller.searchFlight);
+router.get("/search", controller.searchFlight);
 
 router.put(
   "/:flightId",
