@@ -44,6 +44,7 @@ app.use((err, req, res, next) =>
 
 db.sequelize.sync({ alter: true });
 
-app.listen(8000, () => {
+const PORT = 8000;
+app.listen(PORT, () => {
   console.log("The application is running on localhost:8000");
 });

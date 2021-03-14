@@ -13,6 +13,7 @@ exports.fetchUser = async (userId, next) => {
   }
 };
 
+// Create a function that will handle the generation of the payload and token for you
 //----------USER SIGN IN----------//
 exports.signin = async (req, res, next) => {
   const { user } = req;
