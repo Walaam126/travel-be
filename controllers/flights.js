@@ -87,7 +87,29 @@ exports.searchFlight = async (req, res, next) => {
       }; // flights are on the same day
     }
 
-    const flights = await Flight.findAll({ where: query });
+    const flights = await Flight.findAll({
+      where: query,
+      attributes: {
+        exclude: ["depAirport", "arrAirport", "createdAt", "updatedAt"],
+      },
+      include: [
+        {
+          model: Airline,
+          as: "airline",
+          attributes: ["id", "name", "image"],
+        },
+        {
+          model: Location,
+          as: "departure",
+          attributes: ["id", "name"],
+        },
+        {
+          model: Location,
+          as: "arrival",
+          attributes: ["id", "name"],
+        },
+      ],
+    });
     res.json(flights);
   } catch (error) {
     next(error);
