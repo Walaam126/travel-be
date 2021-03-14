@@ -86,7 +86,6 @@ exports.searchFlight = async (req, res, next) => {
           .format("H:mm"),
       }; // flights are on the same day
     }
-    console.log("🚀 ~ query", query);
 
     const flights = await Flight.findAll({ where: query });
     res.json(flights);
