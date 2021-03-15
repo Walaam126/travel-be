@@ -3,6 +3,18 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET, JWT_EXPIRATION_MS } = require("../config/keys");
 const { User } = require("../db/models");
 
+const generateToken = (user, exp) => {
+  const payload = {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    isAirline: user.isAirline,
+    airlineId: user.airlineId,
+    exp: Date.now() + JWT_EXPIRATION_MS,
+  };
+  if (exp) payload.exp = exp;
+  return jwt.sign(JSON.stringify(payload), JWT_SECRET);
+};
 //----------FETCH A USER----------//
 exports.fetchUser = async (userId, next) => {
   try {
@@ -16,16 +28,7 @@ exports.fetchUser = async (userId, next) => {
 //----------USER SIGN IN----------//
 exports.signin = async (req, res, next) => {
   const { user } = req;
-  const payload = {
-    id: user.id,
-    username: user.username,
-    email: user.email,
-    isAirline: user.isAirline,
-    airlineId: user.airlineId,
-    exp: Date.now() + JWT_EXPIRATION_MS,
-  };
-  const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
-  res.json({ token });
+  res.json(generateToken(user));
 };
 
 //----------USER SIGN UP----------//
@@ -36,16 +39,7 @@ exports.signup = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     req.body.password = hashedPassword;
     const newUser = await User.create(req.body);
-    const payload = {
-      id: newUser.id,
-      username: newUser.username,
-      email: newUser.email,
-      isAirline: newUser.isAirline,
-      airlineId: newUser.airlineId,
-      exp: Date.now() + JWT_EXPIRATION_MS,
-    };
-    const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
-    res.json({ token });
+    res.json(generateToken(newUser));
   } catch (error) {
     next(error);
   }
@@ -60,17 +54,7 @@ exports.updateUser = async (req, res, next) => {
     }
 
     const updatedUser = await req.user.update(req.body);
-    const payload = {
-      id: updatedUser.id,
-      username: updatedUser.username,
-      email: updatedUser.email,
-      isAirline: updatedUser.isAirline,
-      airlineId: updatedUser.airlineId,
-      exp: req.body.exp,
-    };
-
-    const token = jwt.sign(JSON.stringify(payload), JWT_SECRET);
-    res.json({ token });
+    res.json(generateToken(updatedUser, req.body.exp));
   } catch (error) {
     next(error);
   }

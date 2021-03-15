@@ -77,7 +77,7 @@ exports.searchFlight = async (req, res, next) => {
       [req.body.seat]: { [Op.gte]: req.body.passengers },
     };
 
-    if (req.body.returnDate) {
+    if (req.body.returnDate === moment().format("YYYY-MM-DD")) {
       query.depTime = { [Op.gte]: moment().add(2, "hours").format("H:mm") };
     } else if (req.body.arrTime) {
       query.depTime = {
