@@ -28,7 +28,7 @@ exports.fetchUser = async (userId, next) => {
 //----------USER SIGN IN----------//
 exports.signin = async (req, res, next) => {
   const { user } = req;
-  res.json(generateToken(user));
+  res.json({ token: generateToken(user) });
 };
 
 //----------USER SIGN UP----------//
@@ -39,7 +39,7 @@ exports.signup = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     req.body.password = hashedPassword;
     const newUser = await User.create(req.body);
-    res.json(generateToken(newUser));
+    res.json({ token: generateToken(newUser) });
   } catch (error) {
     next(error);
   }
@@ -54,7 +54,7 @@ exports.updateUser = async (req, res, next) => {
     }
 
     const updatedUser = await req.user.update(req.body);
-    res.json(generateToken(updatedUser, req.body.exp));
+    res.json({ token: generateToken(updatedUser, req.body.exp) });
   } catch (error) {
     next(error);
   }
