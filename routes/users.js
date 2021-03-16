@@ -18,4 +18,10 @@ router.put(
   controller.updateUser
 );
 
+router.get(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  controller.fetchHistory
+);
+
 module.exports = router;
