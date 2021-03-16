@@ -50,7 +50,7 @@ db.Airline.hasMany(db.Flight, { foreignKey: "airlineId", as: "flights" });
 db.Flight.belongsTo(db.Airline, { foreignKey: "airlineId", as: "airline" });
 
 db.User.hasMany(db.Booking, { foreignKey: "userId", as: "bookings" });
-db.Booking.belongsTo(db.User, { foreignKey: "userId", as: "airline" });
+db.Booking.belongsTo(db.User, { foreignKey: "userId", as: "user" });
 
 db.Booking.hasMany(db.Passenger, { foreignKey: "bookingId", as: "passengers" });
 db.Passenger.belongsTo(db.Booking, { foreignKey: "bookingId", as: "booking" });
