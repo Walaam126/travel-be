@@ -1,12 +1,22 @@
 const { Booking, BookFlight, Flight, Passenger } = require("../db/models");
 
-exports.checkout = async (req, res, next) => {
+// CREATE BOOKING
+exports.createBooking = async (req, res, next) => {
   try {
     const { user, passengers, goFlight, returnFlight } = req.body;
     const newBooking = await Booking.create({
       userId: user ? user.userId : 0,
       type: returnFlight ? "roundtrip" : "oneway",
+      totalPrice: returnFlight
+        ? (goFlight.price + returnFlight.price) * passengers.length
+        : goFlight.price * passengers.length,
     });
+
+    const allPassengers = passengers.map((passenger) => ({
+      ...passenger,
+      bookingId: newBooking.id,
+    }));
+    const newPassengers = await Passenger.bulkCreate(allPassengers);
 
     goFlight.bookingId = newBooking.id;
     await Flight.decrement(goFlight.seat, {
@@ -23,15 +33,9 @@ exports.checkout = async (req, res, next) => {
       });
       flights.push(returnFlight);
     }
-
-    const allPassengers = passengers.map((passenger) => ({
-      ...passenger,
-      bookingId: newBooking.id,
-    }));
-    const newPassengers = await Passenger.bulkCreate(allPassengers);
     const newBookingItems = await BookFlight.bulkCreate(flights);
 
-    res.status(201).json({ newBooking: newBookingItems, newPassengers });
+    res.status(201).json({ newBooking, items: newBookingItems, newPassengers });
   } catch (error) {
     next(error);
   }

@@ -56,12 +56,12 @@ db.Booking.hasMany(db.Passenger, { foreignKey: "bookingId", as: "passengers" });
 db.Passenger.belongsTo(db.Booking, { foreignKey: "bookingId", as: "booking" });
 
 db.Booking.belongsToMany(db.Flight, {
-  through: "BookFlights",
+  through: db.BookFlight,
   foreignKey: "bookingId",
 });
 
 db.Flight.belongsToMany(db.Booking, {
-  through: "BookFlights",
+  through: db.BookFlight,
   foreignKey: "flightId",
 });
 

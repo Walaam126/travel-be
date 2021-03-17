@@ -11,10 +11,10 @@ const db = require("./db/models");
 
 // Routes
 const userRoutes = require("./routes/users");
-const bookingRoutes = require("./routes/bookings");
 const airlineRoutes = require("./routes/airlines");
 const flightRoutes = require("./routes/flights");
 const locationRoutes = require("./routes/locations");
+const bookingRoutes = require("./routes/bookings");
 
 const app = express();
 
@@ -29,10 +29,10 @@ passport.use(jwtStrategy);
 
 // Routes
 app.use(userRoutes);
-app.use(bookingRoutes);
 app.use("/airlines", airlineRoutes);
 app.use("/flights", flightRoutes);
 app.use("/locations", locationRoutes);
+app.use("/booking", bookingRoutes);
 
 app.use("/media", express.static(path.join(__dirname, "media")));
 
