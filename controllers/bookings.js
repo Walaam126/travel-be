@@ -4,7 +4,7 @@ exports.checkout = async (req, res, next) => {
   try {
     const { user, passengers, goFlight, returnFlight } = req.body;
     const newBooking = await Booking.create({
-      userId: user.userId ?? 0,
+      userId: user ? user.userId : 0,
       type: returnFlight ? "roundtrip" : "oneway",
     });
 
