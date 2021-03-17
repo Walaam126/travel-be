@@ -5,6 +5,6 @@ const router = express.Router();
 
 module.exports = router;
 
-router.post("/checkout", controller.checkout);
+router.post("/", controller.createBooking);
 
 module.exports = router;

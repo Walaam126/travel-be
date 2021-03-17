@@ -1,1 +1,2 @@
-module.exports = (sequelize, DataTypes) => sequelize.define("BookFlight", {});
+module.exports = (sequelize) =>
+  sequelize.define("BookFlight", {}, { timestamps: false });

@@ -1,6 +1,6 @@
 const express = require("express");
-const controller = require("../controllers/flights");
 const passport = require("passport");
+const controller = require("../controllers/flights");
 
 const router = express.Router();
 
@@ -17,14 +17,12 @@ router.param("flightId", async (req, res, next, flightId) => {
   }
 });
 
-router.get("/", controller.fetchFlights);
-
-router.post("/search", controller.searchFlight);
-
 router.put(
   "/:flightId",
   passport.authenticate("jwt", { session: false }),
   controller.updateFlight
 );
+
+router.post("/search", controller.searchFlight);
 
 module.exports = router;

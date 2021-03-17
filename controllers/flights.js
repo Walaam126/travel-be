@@ -1,8 +1,8 @@
-const { Op } = require("sequelize");
 const moment = require("moment");
+const { Op } = require("sequelize");
 const { Airline, Flight, Location } = require("../db/models");
 
-//----------FETCH AN FLIGHT----------//
+// FETCH FLIGHT
 exports.fetchFlight = async (flightId, next) => {
   try {
     return await Flight.findByPk(flightId);
@@ -11,50 +11,13 @@ exports.fetchFlight = async (flightId, next) => {
   }
 };
 
-//----------FETCH ALL FLIGHTS----------//
-exports.fetchFlights = async (req, res, next) => {
-  try {
-    const flights = await Flight.findAll({
-      attributes: {
-        exclude: ["createdAt", "updatedAt"],
-      },
-      include: [
-        {
-          model: Airline,
-          as: "airline",
-          attributes: ["id", "name", "image"],
-        },
-        {
-          model: Location,
-          as: "departure",
-          attributes: ["id", "name"],
-        },
-        {
-          model: Location,
-          as: "arrival",
-          attributes: ["id", "name"],
-        },
-      ],
-    });
-    res.json(flights);
-  } catch (error) {
-    next(error);
-  }
-};
-
-//----------UPDATE FLIGHT----------//
+// UPDATE FLIGHT
 exports.updateFlight = async (req, res, next) => {
   try {
     const foundAirline = await Airline.findByPk(req.flight.airlineId);
-    if (!foundAirline) {
-      const err = new Error("Create an Airline first!");
-      err.status = 401;
-      next(err);
-    }
-
     if (foundAirline.userId !== req.user.id) {
       const err = new Error(
-        "You are not the owner, you can't update this airline flights."
+        "You are not the owner, you can't update any flight"
       );
       err.status = 401;
       next(err);
@@ -67,7 +30,7 @@ exports.updateFlight = async (req, res, next) => {
   }
 };
 
-//--------SEARCH FLIGHT------------//
+// SEARCH FLIGHT
 exports.searchFlight = async (req, res, next) => {
   try {
     const query = {
@@ -89,25 +52,15 @@ exports.searchFlight = async (req, res, next) => {
 
     const flights = await Flight.findAll({
       where: query,
-      attributes: {
-        exclude: ["depAirport", "arrAirport", "createdAt", "updatedAt"],
-      },
+      attributes: { exclude: ["airlineId", "depAirport", "arrAirport"] },
       include: [
         {
           model: Airline,
           as: "airline",
-          attributes: ["id", "name", "image"],
+          attributes: ["id", "name", "logo"],
         },
-        {
-          model: Location,
-          as: "departure",
-          attributes: ["id", "name"],
-        },
-        {
-          model: Location,
-          as: "arrival",
-          attributes: ["id", "name"],
-        },
+        { model: Location, as: "departure" },
+        { model: Location, as: "arrival" },
       ],
     });
     res.json(flights);

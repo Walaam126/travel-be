@@ -28,14 +28,15 @@ passport.use(localStrategy);
 passport.use(jwtStrategy);
 
 // Routes
-app.use("/media", express.static(path.join(__dirname, "media")));
-
 app.use(userRoutes);
 app.use("/airlines", airlineRoutes);
 app.use("/flights", flightRoutes);
 app.use("/locations", locationRoutes);
-app.use(bookingRoutes);
+app.use("/booking", bookingRoutes);
 
+app.use("/media", express.static(path.join(__dirname, "media")));
+
+// Error Middlewares
 app.use((req, res, next) => next({ status: 404, message: "Path not found" }));
 
 app.use((err, req, res, next) =>
@@ -47,6 +48,4 @@ app.use((err, req, res, next) =>
 db.sequelize.sync({ alter: true });
 
 const PORT = 8000;
-app.listen(PORT, () => {
-  console.log("The application is running on localhost:8000");
-});
+app.listen(PORT, () => console.log(`Running on localhost: ${PORT}`));

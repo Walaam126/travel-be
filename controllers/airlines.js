@@ -1,7 +1,8 @@
-const { Airline, Flight } = require("../db/models");
 const moment = require("moment");
+const { Airline, Flight, Location } = require("../db/models");
+const userController = require("../controllers/users");
 
-//----------FETCH AN AIRLINE----------//
+// FETCH AIRLINE
 exports.fetchAirline = async (airlineId, next) => {
   try {
     return await Airline.findByPk(airlineId);
@@ -10,27 +11,10 @@ exports.fetchAirline = async (airlineId, next) => {
   }
 };
 
-//----------FETCH ALL AIRLINES----------//
-exports.fetchAirlines = async (req, res, next) => {
-  try {
-    const airlines = await Airline.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      include: {
-        model: Flight,
-        as: "flights",
-        attributes: ["id"],
-      },
-    });
-    res.json(airlines);
-  } catch (error) {
-    next(error);
-  }
-};
-
-//----------FETCH AIRLINE DETAILS----------//
+// FETCH AIRLINE DETAILS
 exports.fetchAirlineDetails = async (req, res, next) => {
   if (req.user.id !== req.airline.userId) {
-    const err = new Error("You are not the owner of this Airline!");
+    const err = new Error("You are not the owner of this Airline");
     err.status = 401;
     return next(err);
   }
@@ -38,27 +22,31 @@ exports.fetchAirlineDetails = async (req, res, next) => {
   res.json(req.airline);
 };
 
-//----------FETCH AIRLINE FLIGHTS----------//
+// FETCH AIRLINE FLIGHTS
 exports.airlineFlights = async (req, res, next) => {
   try {
     if (req.user.id !== req.airline.userId) {
-      const err = new Error("You are not the owner of this Airline!");
+      const err = new Error("You are not the owner of this Airline");
       err.status = 401;
       return next(err);
     }
 
     const flights = await Flight.findAll({
+      order: [["depDate", "DESC"]],
       where: { airlineId: req.airline.id },
-      attributes: { exclude: ["airlineId", "createdAt", "updatedAt"] },
+      attributes: { exclude: ["airlineId", "arrAirport", "depAirport"] },
+      include: [
+        { model: Location, as: "departure" },
+        { model: Location, as: "arrival" },
+      ],
     });
-
     res.json(flights);
   } catch (error) {
     next(error);
   }
 };
 
-//----------CREATE AIRLINE----------//
+// CREATE AIRLINE
 exports.createAirline = async (req, res, next) => {
   try {
     const foundAirline = await Airline.findOne({
@@ -72,18 +60,19 @@ exports.createAirline = async (req, res, next) => {
     }
 
     if (req.file) {
-      req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+      req.body.logo = `http://${req.get("host")}/media/${req.file.filename}`;
     }
 
     req.body.userId = req.user.id;
     const newAirline = await Airline.create(req.body);
+    await req.user.update({ airlineId: newAirline.id });
     res.status(201).json(newAirline);
   } catch (error) {
     next(error);
   }
 };
 
-//----------CREATE FLIGHT----------//
+// CREATE FLIGHT
 exports.createFlight = async (req, res, next) => {
   try {
     if (req.airline.userId !== req.user.id) {
@@ -92,19 +81,19 @@ exports.createFlight = async (req, res, next) => {
       return next(err);
     }
 
-    req.body.airlineId = req.airline.id;
+    const duration = req.body.duration;
+    delete req.body.duration;
 
     const flightDep = moment(
       `${req.body.depDate} ${req.body.depTime}`,
       "YYYY-MM-DD H:mm"
     );
+    const flightArr = flightDep;
+    flightArr.add(duration, "minutes");
 
-    const flightArr = moment(
-      `${req.body.arrDate} ${req.body.arrTime}`,
-      "YYYY-MM-DD H:mm"
-    );
-
-    const duration = Math.abs(flightArr.diff(flightDep, "minutes"));
+    req.body.arrDate = flightArr.format("YYYY-MM-DD");
+    req.body.arrTime = flightArr.format("H:mm");
+    req.body.airlineId = req.airline.id;
 
     const flight = {
       ...req.body,

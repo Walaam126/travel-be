@@ -1,62 +1,45 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET, JWT_EXPIRATION_MS } = require("../config/keys");
-const {
-  Airline,
-  User,
-  Booking,
-  BookFlight,
-  Flight,
-  Location,
-  Passenger,
-} = require("../db/models");
+const model = require("../db/models");
 
+// GENERATE TOKEN
 const generateToken = (user, exp) => {
   const payload = {
     id: user.id,
     username: user.username,
     email: user.email,
-    isAirline: user.isAirline,
+    firstName: user.firstName,
+    lastName: user.lastName,
     airlineId: user.airlineId,
     exp: Date.now() + JWT_EXPIRATION_MS,
   };
   if (exp) payload.exp = exp;
   return jwt.sign(JSON.stringify(payload), JWT_SECRET);
 };
-//----------FETCH A USER----------//
-exports.fetchUser = async (userId, next) => {
-  try {
-    const foundUser = await User.findByPk(userId);
-    return foundUser;
-  } catch (error) {
-    next(error);
-  }
-};
 
-//----------USER SIGN IN----------//
-exports.signin = async (req, res, next) => {
-  const { user } = req;
-  res.json({ token: generateToken(user) });
-};
+// SIGN IN
+exports.signin = async (req, res, next) =>
+  res.json({ token: generateToken(req.user) });
 
-//----------USER SIGN UP----------//
+// SIGN UP
 exports.signup = async (req, res, next) => {
   const { password } = req.body;
   const saltRounds = 10;
   try {
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    req.body.password = hashedPassword;
-    const newUser = await User.create(req.body);
+    req.body.password = await bcrypt.hash(password, saltRounds);
+    const newUser = await model.User.create(req.body);
     res.json({ token: generateToken(newUser) });
   } catch (error) {
     next(error);
   }
 };
 
+// UPDATE INFO
 exports.updateUser = async (req, res, next) => {
   try {
     if (req.user.id !== req.body.id) {
-      const err = new Error("You can't update another user info!");
+      const err = new Error("You can not update another user info");
       err.status = 401;
       return next(err);
     }
@@ -68,49 +51,40 @@ exports.updateUser = async (req, res, next) => {
   }
 };
 
+// FETCH BOOKINGS HISTORY
 exports.fetchHistory = async (req, res, next) => {
   try {
-    const history = await Booking.findAll({
+    const history = await model.Booking.findAll({
       order: [["createdAt", "DESC"]],
       where: { userId: req.user.id },
-      attributes: { exclude: ["createdAt", "updatedAt", "userId", "type"] },
+      attributes: { exclude: ["userId", "createdAt", "updatedAt"] },
       include: [
         {
-          model: Passenger,
+          model: model.Passenger,
           as: "passengers",
-          attributes: { exclude: ["bookingId", "createdAt", "updatedAt"] },
+          attributes: { exclude: ["bookingId"] },
         },
         {
-          model: Flight,
-          through: BookFlight,
+          model: model.Flight,
+          through: model.BookFlight,
           attributes: {
             exclude: [
-              "depAirport",
-              "arrAirport",
               "airlineId",
+              "arrAirport",
+              "BookFlights",
+              "depAirport",
               "economy",
               "business",
-              "BookFlight",
-              "createdAt",
-              "updatedAt",
             ],
           },
           include: [
             {
-              model: Airline,
+              model: model.Airline,
               as: "airline",
-              attributes: ["id", "name", "image"],
+              attributes: { exclude: ["slug", "userId"] },
             },
-            {
-              model: Location,
-              as: "departure",
-              attributes: ["id", "name"],
-            },
-            {
-              model: Location,
-              as: "arrival",
-              attributes: ["id", "name"],
-            },
+            { model: model.Location, as: "departure" },
+            { model: model.Location, as: "arrival" },
           ],
         },
       ],

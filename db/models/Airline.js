@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       name: { type: DataTypes.STRING, allowNull: false, unique: true },
       slug: { type: DataTypes.STRING, unique: true },
-      image: { type: DataTypes.STRING }, // must be allowNull : false
+      logo: { type: DataTypes.STRING, allowNull: false },
     },
     { timestamps: false }
   );
