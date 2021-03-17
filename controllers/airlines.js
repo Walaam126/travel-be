@@ -34,7 +34,7 @@ exports.airlineFlights = async (req, res, next) => {
     const flights = await Flight.findAll({
       order: [["depDate", "DESC"]],
       where: { airlineId: req.airline.id },
-      attributes: { exclude: ["airlineId", "arrAirport", "depAirport"] },
+      attributes: { exclude: ["arrAirport", "depAirport"] },
       include: [
         { model: Location, as: "departure" },
         { model: Location, as: "arrival" },
