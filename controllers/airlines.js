@@ -1,6 +1,6 @@
 const moment = require("moment");
+const { Op } = require("sequelize");
 const { Airline, Flight, Location } = require("../db/models");
-const userController = require("../controllers/users");
 
 // FETCH AIRLINE
 exports.fetchAirline = async (airlineId, next) => {
@@ -105,7 +105,19 @@ exports.createFlight = async (req, res, next) => {
       arrAirport: req.body.depAirport,
     };
 
-    const flights = await Flight.bulkCreate([req.body, flight]);
+    const newflights = await Flight.bulkCreate([req.body, flight]);
+
+    const flights = await Flight.findAll({
+      where: {
+        [Op.or]: [{ id: newflights[0].id }, { id: newflights[1].id }],
+      },
+      attributes: { exclude: ["arrAirport", "depAirport"] },
+      include: [
+        { model: Location, as: "departure" },
+        { model: Location, as: "arrival" },
+      ],
+    });
+
     res.status(201).json(flights);
   } catch (error) {
     next(error);

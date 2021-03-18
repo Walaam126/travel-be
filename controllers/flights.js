@@ -24,7 +24,16 @@ exports.updateFlight = async (req, res, next) => {
     }
 
     const updatedFlight = await req.flight.update(req.body);
-    res.status(201).json(updatedFlight);
+    const afterUpdateFlight = await Flight.findAll({
+      where: {
+        id: updatedFlight.id,
+      },
+      include: [
+        { model: Location, as: "departure" },
+        { model: Location, as: "arrival" },
+      ],
+    });
+    res.status(201).json(afterUpdateFlight);
   } catch (error) {
     next(error);
   }
